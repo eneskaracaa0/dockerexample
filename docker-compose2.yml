@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+  drupal:
+        image: drupal:latest
+        ports:
+            - "8080:80"
+        volumes:
+          - /var/www/html/modules
+          - /var/www/html/profiles
+          - /var/www/html/themes
+          - /var/www/html/sites
+        restart: always
+
+  postegres:
+        image: postgres:latest
+        environment:
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: db
+        ports:
+            - "5432:5432"
+        volumes:
+            - my-db:/var/lib/postgresql/data
+        restart: always
+
+        

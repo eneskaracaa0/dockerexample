@@ -1,24 +1,23 @@
-const { MongoClient } = require('mongodb');
+const mongoose=require('mongoose')
 
+const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 const database = async () => {
+
     try {
+        await mongoose.connect(process.env.MONGO_URI,clientOptions);
+        await mongoose.connection.db.admin().command({ping:1});
+        const databases=await admin.command({listDatabases:1})
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
         
-        // MongoDB URI ve istemciyi ayarla
-        const uri = process.env.MONGO_URI; // Çevre değişkeninin doğru yazıldığından emin olun.
-        const client = new MongoClient(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-
-        // Veritabanına bağlan
-        await client.connect();
-        console.log('MongoDB connected');
-
-    
-        return client; // Gerekirse istemciyi döndürebilirsiniz.
+        
+        
     } catch (error) {
-        console.error('MongoDB connection error:', error);
+        console.log('Mongodb disconnected!',error);
+        await mongoose.disconnect();//bağlantıyı kapat
+        
+        
     }
+  
 };
 
 module.exports = database;
