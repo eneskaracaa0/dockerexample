@@ -1,30 +1,42 @@
-version: '3.1' # docker-compose.yml dosyasının versiyonu
+version: '3.1'
 
-services:  # image'leri kapsayan blok
-    # MySQL servisi
-    mysql:
-        image: mysql:latest # MySQL imajını kullanır
-        environment:  # MySQL için ortam değişkenlerini tanımlar
-            MYSQL_ROOT_PASSWORD: root  # Root şifresi
-            MYSQL_DATABASE: 'db'  # Oluşturulacak veritabanı adı
-            MYSQL_USER: 'user'  # MySQL kullanıcı adı
-            MYSQL_PASSWORD: 'password'  # MySQL kullanıcı şifresi
-        ports:
-            - "3306:3306"  # Host'un 3306 portunu, container içindeki 3306 portuna yönlendirir
-        expose:
-            - '3306'  # Bu, sadece diğer konteynerler tarafından erişilebilen bir portu açar
-        volumes:
-            - my-db:/var/lib/mysql  # MySQL veritabanı verilerini kalıcı hale getirmek için volume kullanılır
-
-    # PHPMyAdmin servisi
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin:latest # PHPMyAdmin imajını kullanır
-        ports:
-            - "8081:80"  # Host'un 8080 portunu PHPMyAdmin'e yönlendirir
-        environment:
-            PMA_HOST: mysql  # PHPMyAdmin'in bağlanacağı MySQL servisi adı
-            PMA_PORT: 3306  # PHPMyAdmin'in bağlanacağı MySQL servisi portu
-            MYSQL_ROOT_PASSWORD: root  # MySQL root şifresi
+services:
+  drupal: 
+    container_name: drupal
+    image: drupal
+    ports:
+      - "81:80"
+    volumes:
+      - drupal-modules:/var/www/html/modules
+      - drupal-profiles:/var/www/html/profiles
+      - drupal-sites:/var/www/html/sites
+      - drupal-themes:/var/www/html/themes
+      - ./apache.conf:/etc/apache2/conf-enabled/servername.conf
+    networks:
+      - drupal_net
+    depends_on:
+      - postgres
+    
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 123
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - drupal_net
 
 volumes:
-  my-db:  # Volume tanımlaması, MySQL verilerini kalıcı hale getirmek için
+  drupal-modules:
+  drupal-profiles:
+  drupal-sites:
+  drupal-themes:
+  postgres-data:
+
+networks:
+  drupal_net:
